@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.26'
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run tests
+      run: go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+        fail_ci_if_error: false
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.26'
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Build for multiple platforms
+      run: |
+        mkdir -p bin
+        # Build for Linux AMD64
+        GOOS=linux GOARCH=amd64 go build -o bin/serveradmin-go-linux-amd64 .
+        
+        # Build for Linux ARM64
+        GOOS=linux GOARCH=arm64 go build -o bin/serveradmin-go-linux-arm64 .
+        
+        # Build for Windows AMD64
+        GOOS=windows GOARCH=amd64 go build -o bin/serveradmin-go-windows-amd64.exe .
+        
+        # Build for macOS AMD64
+        GOOS=darwin GOARCH=amd64 go build -o bin/serveradmin-go-darwin-amd64 .
+        
+        # Build for macOS ARM64 (Apple Silicon)
+        GOOS=darwin GOARCH=arm64 go build -o bin/serveradmin-go-darwin-arm64 .
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: serveradmin-go-builds
+        path: bin/
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.26'
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v4
+      with:
+        version: latest
+        args: --enable-all --timeout=5m --verbose
+        working-directory: .
+        only-new-issues: false
+        fail-on-error: true
+
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.26'
+
+    - name: Check gofmt
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "Code is not formatted. Please run 'gofmt -s -w .'"
+          gofmt -s -l .
+          exit 1
+        fi
+
+    - name: Check goimports
+      run: |
+        go install golang.org/x/tools/cmd/goimports@latest
+        if [ "$(goimports -l . | wc -l)" -gt 0 ]; then
+          echo "Imports are not properly formatted. Please run 'goimports -w .'"
+          goimports -l .
+          exit 1
+        fi
+
+    - name: Check go mod tidy
+      run: |
+        go mod tidy
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "go.mod or go.sum is not tidy. Please run 'go mod tidy'"
+          git status
+          exit 1
+        fi

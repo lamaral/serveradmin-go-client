@@ -1,0 +1,79 @@
+run:
+  timeout: 5m
+  go: "1.24"
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+  allow-serial-runners: false
+
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - structcheck
+    - varcheck
+    - ineffassign
+    - deadcode
+    - typecheck
+    - gosec
+    - gocyclo
+    - dupl
+    - misspell
+    - unparam
+    - nakedret
+    - prealloc
+    - gocritic
+    - gomnd
+    - gomodguard
+    - goprintffuncname
+    - noctx
+    - nolintlint
+    - unconvert
+    - whitespace
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+  dupl:
+    threshold: 100
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+  gomnd:
+    checks: argument,case,condition,operation,return,assign
+  gomodguard:
+    allowed:
+      modules:
+        - gopkg.in/yaml.v3
+        - github.com/stretchr/testify
+        - golang.org/x/crypto
+        - golang.org/x/sys
+    blocked:
+      modules:
+        - github.com/ugorji/go/codec
+        - github.com/ugorji/go
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+        - gocyclo
+        - dupl
+    - path: testdata/
+      linters:
+        - all
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-use-default: false
+  new: false
+  new-from-rev: ""
+  new-from-patch: false
