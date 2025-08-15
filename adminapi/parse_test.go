@@ -42,27 +42,27 @@ func TestParseQuery(t *testing.T) {
 		{
 			name:  "Regexp filter",
 			query: "hostname=regexp(foo.*)",
-			want:  Filters{"hostname": filter{"Regexp": "foo.*"}},
+			want:  Filters{"hostname": Filter{"Regexp": "foo.*"}},
 		},
 		{
 			name:  "Not Empty filter",
 			query: "hostname=not(empty())",
-			want:  Filters{"hostname": filter{"Not": filter{"Empty": []interface{}{}}}},
+			want:  Filters{"hostname": Filter{"Not": Filter{"Empty": []interface{}{}}}},
 		},
 		{
 			name:  "Any multi int",
 			query: "game_world=Any(1 2 3)",
-			want:  Filters{"game_world": filter{"Any": []any{1, 2, 3}}},
+			want:  Filters{"game_world": Filter{"Any": []any{1, 2, 3}}},
 		},
 		{
 			name:  "All with mixed types",
 			query: "meta=all(1 server true)",
-			want:  Filters{"meta": filter{"All": []any{1, "server", true}}},
+			want:  Filters{"meta": Filter{"All": []any{1, "server", true}}},
 		},
 		{
 			name:  "Nested filters",
 			query: "prop=not(any(Regexp(abc) 42))",
-			want:  Filters{"prop": filter{"Not": filter{"Any": []any{filter{"Regexp": "abc"}, 42}}}},
+			want:  Filters{"prop": Filter{"Not": Filter{"Any": []any{Filter{"Regexp": "abc"}, 42}}}},
 		},
 		{
 			name:  "Multiple fields",
@@ -108,23 +108,23 @@ func TestParseQuery(t *testing.T) {
 		{
 			name:  "extra spaces",
 			query: "  foo=4    bar=Not(  1 )  ",
-			want:  Filters{"foo": 4, "bar": filter{"Not": 1}},
+			want:  Filters{"foo": 4, "bar": Filter{"Not": 1}},
 		},
 		// --- New test cases for uppercase/mixed-case functions and invalid function names ---
 		{
 			name:  "uppercase function name ALL",
 			query: "meta=ALL(str1 str2)",
-			want:  Filters{"meta": filter{"All": []any{"str1", "str2"}}},
+			want:  Filters{"meta": Filter{"All": []any{"str1", "str2"}}},
 		},
 		{
 			name:  "mixed-case function name REGexp",
 			query: "hostname=ReGExp(.*)",
-			want:  Filters{"hostname": filter{"Regexp": ".*"}},
+			want:  Filters{"hostname": Filter{"Regexp": ".*"}},
 		},
 		{
 			name:  "overlaps with capital letters",
 			query: "field=OverLapS(A B C)",
-			want:  Filters{"field": filter{"Overlaps": []any{"A", "B", "C"}}},
+			want:  Filters{"field": Filter{"Overlaps": []any{"A", "B", "C"}}},
 		},
 		{
 			name:        "invalid function name",
@@ -139,7 +139,7 @@ func TestParseQuery(t *testing.T) {
 		{
 			name:  "StartsWith function with normal case",
 			query: "description=startsWith(abc)",
-			want:  Filters{"description": filter{"StartsWith": "abc"}},
+			want:  Filters{"description": Filter{"StartsWith": "abc"}},
 		},
 	}
 

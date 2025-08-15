@@ -146,10 +146,10 @@ func parseValue(s string) (any, error) {
 
 		// Single arg: Not(x), Regexp(y), etc.
 		if len(argVals) == 1 {
-			return filter{canonicalFn: argVals[0]}, nil
+			return Filter{canonicalFn: argVals[0]}, nil
 		}
 		// Multi arg: Any(1 2 3), All(a b c)
-		return filter{canonicalFn: argVals}, nil
+		return Filter{canonicalFn: argVals}, nil
 	}
 
 	// If not a filter, treat as simple string
