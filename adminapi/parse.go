@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -17,7 +18,7 @@ import (
 func ParseQuery(query string) (Filters, error) {
 	query = strings.TrimSpace(query)
 	if query == "" {
-		return nil, fmt.Errorf("query must not be empty")
+		return nil, errors.New("query must not be empty")
 	}
 	parts, err := splitPairs(query)
 	if err != nil {
@@ -68,7 +69,7 @@ func splitPairs(s string) ([]string, error) {
 		case r == ')':
 			depth--
 			if depth < 0 {
-				return nil, fmt.Errorf("unmatched ) found")
+				return nil, errors.New("unmatched ) found")
 			}
 		case unicode.IsSpace(r) && depth == 0:
 			if start < i {
@@ -78,7 +79,7 @@ func splitPairs(s string) ([]string, error) {
 		}
 	}
 	if depth != 0 {
-		return nil, fmt.Errorf("unmatched ( found")
+		return nil, errors.New("unmatched ( found")
 	}
 	if start < len(s) {
 		res = append(res, s[start:])

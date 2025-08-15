@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFakeServer(t *testing.T) {
@@ -35,20 +36,20 @@ func TestFakeServer(t *testing.T) {
 	query.SetAttributes([]string{"hostname"})
 
 	servers, err := query.All()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, servers, 1)
 
 	object := servers[0]
 	assert.Equal(t, "foo.bar.local", object.Get("hostname"))
 	assert.Equal(t, "foo.bar.local", object.GetString("hostname"))
 	assert.Equal(t, 483903, object.Get("object_id"))
-	assert.Equal(t, 483903, object.ObjectId())
-	assert.Equal(t, nil, object.GetString("object_id"))
+	assert.Equal(t, 483903, object.ObjectID())
+	assert.Nil(t, object.GetString("object_id"))
 	assert.Nil(t, object.Get("nope"))
 	assert.Nil(t, object.GetString("nope"))
 
 	one, err := query.One()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 483903, one.Get("object_id"))
 }
 

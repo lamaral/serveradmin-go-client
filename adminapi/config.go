@@ -2,6 +2,7 @@ package adminapi
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -33,11 +34,11 @@ var loadConfig = func() (config, error) {
 		apiVersion: version,
 	}
 
-	baseUrl := os.Getenv("SERVERADMIN_BASE_URL")
-	if baseUrl == "" {
-		return cfg, fmt.Errorf("env var SERVERADMIN_BASE_URL not set")
+	baseURL := os.Getenv("SERVERADMIN_BASE_URL")
+	if baseURL == "" {
+		return cfg, errors.New("env var SERVERADMIN_BASE_URL not set")
 	}
-	cfg.baseURL = strings.TrimRight(baseUrl, "/api")
+	cfg.baseURL = strings.TrimRight(baseURL, "/api")
 
 	if privateKeyPath, ok := os.LookupEnv("SERVERADMIN_KEY_PATH"); ok {
 		keyBytes, err := os.ReadFile(privateKeyPath)
@@ -72,7 +73,7 @@ var loadConfig = func() (config, error) {
 	}
 
 	if len(cfg.authToken) == 0 && cfg.sshSigner == nil {
-		return cfg, fmt.Errorf("no authentication method found: set SERVERADMIN_TOKEN/SERVERADMIN_KEY_PATH/SSH_AUTH_SOCK")
+		return cfg, errors.New("no authentication method found: set SERVERADMIN_TOKEN/SERVERADMIN_KEY_PATH/SSH_AUTH_SOCK")
 	}
 
 	return cfg, nil

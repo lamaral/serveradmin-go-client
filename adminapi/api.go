@@ -6,7 +6,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha1"
+	"crypto/sha1" //nolint:gosec // SHA1 is required by the protocol
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -54,8 +54,8 @@ func (s ServerObject) GetString(attribute string) any {
 	return nil
 }
 
-// ObjectId returns the "object_id" attribute of the ServerObject
-func (s ServerObject) ObjectId() int {
+// ObjectID returns the "object_id" attribute of the ServerObject
+func (s ServerObject) ObjectID() int {
 	return s.Get("object_id").(int)
 }
 
@@ -66,7 +66,7 @@ func sendRequest(endpoint string, postData any) (*http.Response, error) {
 	}
 
 	postStr, _ := json.Marshal(postData)
-	req, err := http.NewRequestWithContext(context.Background(), "GET", config.baseURL+endpoint, bytes.NewBuffer(postStr))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, config.baseURL+endpoint, bytes.NewBuffer(postStr))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -152,7 +152,7 @@ func calcMessage(timestamp int64, data []byte) []byte {
 
 // calcAppID computes SHA-1 hash of the auth token
 func calcAppID(authToken []byte) string {
-	hash := sha1.Sum(authToken)
+	hash := sha1.Sum(authToken) //nolint:gosec // SHA1 is required by the protocol
 
 	return hex.EncodeToString(hash[:])
 }

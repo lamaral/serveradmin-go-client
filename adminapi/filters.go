@@ -2,8 +2,10 @@ package adminapi
 
 // todo have proper values and more fitting types instead of any
 
-type Filters map[string]any
-type filter map[string]any
+type (
+	Filters map[string]any
+	filter  map[string]any
+)
 
 type value interface {
 	int | string | bool

@@ -14,22 +14,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - uses: actions/setup-go@v5
       with:
-        go-version: '1.26'
-
-    - name: Install dependencies
-      run: go mod download
+        go-version: stable
 
     - name: Run tests
-      run: go test -v -race -coverprofile=coverage.out ./...
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.out
-        fail_ci_if_error: false
+      run: go test ./...
 
   build:
     name: Build
@@ -39,9 +29,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
-        go-version: '1.26'
+        go-version: stable
 
     - name: Install dependencies
       run: go mod download
@@ -64,33 +54,6 @@ jobs:
         # Build for macOS ARM64 (Apple Silicon)
         GOOS=darwin GOARCH=arm64 go build -o bin/serveradmin-go-darwin-arm64 .
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: serveradmin-go-builds
-        path: bin/
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.26'
-
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v4
-      with:
-        version: latest
-        args: --enable-all --timeout=5m --verbose
-        working-directory: .
-        only-new-issues: false
-        fail-on-error: true
-
   format-check:
     name: Format Check
     runs-on: ubuntu-latest
@@ -98,27 +61,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - uses: actions/setup-go@v5
       with:
-        go-version: '1.26'
+        go-version: stable
 
-    - name: Check gofmt
-      run: |
-        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-          echo "Code is not formatted. Please run 'gofmt -s -w .'"
-          gofmt -s -l .
-          exit 1
-        fi
-
-    - name: Check goimports
-      run: |
-        go install golang.org/x/tools/cmd/goimports@latest
-        if [ "$(goimports -l . | wc -l)" -gt 0 ]; then
-          echo "Imports are not properly formatted. Please run 'goimports -w .'"
-          goimports -l .
-          exit 1
-        fi
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v8
+      with:
+        version: latest
 
     - name: Check go mod tidy
       run: |

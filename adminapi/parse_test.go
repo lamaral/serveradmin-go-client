@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseQuery(t *testing.T) {
@@ -148,7 +149,7 @@ func TestParseQuery(t *testing.T) {
 			if tt.expectError {
 				assert.Error(t, err, "expected error but got nil")
 			} else {
-				assert.NoError(t, err, "unexpected error", err)
+				require.NoError(t, err, "unexpected error", err)
 				assert.Equal(t, tt.want, got, "expected and actual output do not match")
 			}
 		})

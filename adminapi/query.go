@@ -69,7 +69,6 @@ func (q *Query) All() (ServerObjects, error) {
 // One returns exactly one matching SA object. If there is none or more than one, an error is returned.
 func (q *Query) One() (ServerObject, error) {
 	err := q.load()
-
 	if err != nil {
 		return ServerObject{}, err
 	}

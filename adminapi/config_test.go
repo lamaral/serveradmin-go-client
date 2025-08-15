@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -14,7 +15,7 @@ func TestLoadConfig(t *testing.T) {
 
 	// make a test without SERVERADMIN_BASE_URL set
 	_, err := loadConfig()
-	assert.Error(t, err, "env var SERVERADMIN_BASE_URL not set")
+	require.Error(t, err, "env var SERVERADMIN_BASE_URL not set")
 
 	// spawn mocked serveradmin server
 	server := httptest.NewServer(nil)
@@ -25,7 +26,7 @@ func TestLoadConfig(t *testing.T) {
 		_ = os.Setenv("SERVERADMIN_TOKEN", "jolo")
 		cfg, err := loadConfig()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, cfg.sshSigner)
 		assert.Equal(t, "jolo", string(cfg.authToken))
 	})
@@ -34,7 +35,7 @@ func TestLoadConfig(t *testing.T) {
 		_ = os.Setenv("SERVERADMIN_KEY_PATH", "testdata/test.key")
 		cfg, err := loadConfig()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, cfg)
 		assert.Empty(t, cfg.authToken)
 	})

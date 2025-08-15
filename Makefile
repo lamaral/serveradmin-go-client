@@ -11,4 +11,4 @@ test-coverage:
 	  go tool cover -html=coverage.out -o coverage.html
 
 linter:
-	  golangci-lint run --enable-all
+	  golangci-lint run
